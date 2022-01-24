@@ -1,0 +1,33 @@
+
+<%@page import="com.mini.util.MD5"%>
+<%@page import="com.mini.vo.MemberVO"%>
+<%@page import="com.mini.dao.MemberDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8" %>
+
+		<% 
+
+			String userid = request.getParameter("memId");
+			String userpwd = request.getParameter("memPwd");
+			
+			MemberDAO memberDao = new MemberDAO();
+			MemberVO member = memberDao.getMemberById(userid);
+		
+			// 입력한 아이디에 해당하는 사용자 정보가 없는 경우
+			if (member == null) {
+				response.sendRedirect("loginError.jsp?err=deny");
+				return;
+				
+			}
+			
+			String securityPassword = MD5.hash(userpwd);
+			if (!securityPassword.equals(member.getMemberPwd())) {
+				response.sendRedirect("loginError.jsp?err=fail");
+				return;
+			}
+			
+			session.setAttribute("LOGIN_MEMBER", member);
+			
+			response.sendRedirect("../main.jsp");
+		%>
+		

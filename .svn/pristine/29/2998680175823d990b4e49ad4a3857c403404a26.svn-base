@@ -1,0 +1,106 @@
+<%@page import="com.mini.vo.MemberVO"%>
+<%@page import="com.mini.dao.MemberDAO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%
+	request.setCharacterEncoding("utf-8");
+	
+	String pwd = request.getParameter("newpwd");
+	String repwd = request.getParameter("newpwdre");
+
+	MemberDAO dao = new MemberDAO();
+	MemberVO member = (MemberVO) request.getSession().getAttribute("LOGIN_MEMBER");
+	
+	if (member.getMemberPhoto().equals(request.getParameter("photo"))) {
+		return;
+	
+	} else {
+		member.setMemberPhoto(request.getParameter("photo"));
+	}
+
+	if (member.getMemberName().equals(request.getParameter("name"))) {
+		return;
+		
+	} else {
+		member.setMemberName(request.getParameter("name"));
+	}
+		
+	if (pwd == null) {
+		response.sendRedirect("accountError.jsp?err=deny2");
+		return;
+			
+		} else if (repwd == null) {
+			response.sendRedirect("accountError.jsp?err=deny3");
+			return;	
+		
+		} else if (!pwd.equals(repwd)) {
+			response.sendRedirect("accountError.jsp?err=fail2");
+			return;
+	}
+		
+	if (member.getMemberGender().equals(request.getParameter("gender"))) {
+		return;
+		
+	} else {
+		member.setMemberGender(request.getParameter("gender"));
+	}
+	
+	if (member.getMemberContact().equals(request.getParameter("contact"))) {
+		return;
+
+	} else {
+		member.setMemberContact(request.getParameter("contact"));
+	}
+	
+	if (member.getMemberAddr().equals(request.getParameter("addr"))) {
+		return;
+
+	} else {
+		member.setMemberAddr(request.getParameter("addr"));
+	}
+	
+	if (member.getMemberEmail().equals(request.getParameter("email"))) {
+		return;
+	
+	} else {
+		member.setMemberEmail(request.getParameter("email"));
+	}
+	
+	if (member.getMemberBirth().equals(request.getParameter("dob"))) {
+		return;
+	
+	} else {
+		member.setMemberBirth(request.getParameter("dob"));
+	}
+
+	dao.updateMember(member);
+	
+%>
+<script>
+	alert("회정 정보를 수정하셨습니다.");
+	location.href="../main.jsp";
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

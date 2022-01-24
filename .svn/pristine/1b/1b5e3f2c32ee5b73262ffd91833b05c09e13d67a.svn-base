@@ -1,0 +1,9 @@
+<%@ page pageEncoding="utf-8"%>
+<footer class="text-center">
+  <a class="up-arrow" id="top_btn" href="#" data-toggle="tooltip" title="TO TOP">
+    <span class="glyphicon glyphicon-chevron-up"></span>
+  </a><br><br>
+  <p>
+  	MINI Facebook
+  </p> 
+</footer>

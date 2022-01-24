@@ -1,0 +1,43 @@
+<%@page import="com.mini.dao.BoardDAO"%>
+<%@page import="com.mini.vo.MemberVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8" session="false"%>
+<%
+	request.setCharacterEncoding("utf-8");
+	MemberVO member = (MemberVO) request.getSession().getAttribute("LOGIN_MEMBER");
+	BoardDAO dao = new BoardDAO();
+	int bno = Integer.parseInt(request.getParameter("bno"));
+	int cno = 0;
+	boolean isAlreadyLike = false;
+	if (request.getParameter("cno")!=null){
+		cno = Integer.parseInt(request.getParameter("cno"));
+		isAlreadyLike = dao.isAlreadyLike(cno, member.getMemberNo());
+		if (isAlreadyLike) {
+			%>
+			<script>alert("you already liked it!");
+			history.back();
+			</script>
+			<%
+			
+			return;
+			
+		} else {
+			dao.likeBoard(cno, member.getMemberNo());
+			response.sendRedirect("../main.jsp?bno="+bno+"&cno="+cno);
+			return;
+		}
+	}
+	isAlreadyLike = dao.isAlreadyLike(bno, member.getMemberNo());
+	if (isAlreadyLike) {
+		%>
+		<script>alert("you already liked it!");
+		history.back();
+		</script>
+		<%
+		return;
+	} else {
+		dao.likeBoard(bno, member.getMemberNo());
+		response.sendRedirect("../main.jsp?bno="+bno);
+		return;
+	}
+%>

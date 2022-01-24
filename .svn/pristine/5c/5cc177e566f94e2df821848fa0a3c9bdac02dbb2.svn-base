@@ -1,0 +1,898 @@
+<%@page import="com.mini.dao.MemberDAO"%>
+<%@page import="com.mini.util.NumberUtil"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ page import="com.mini.vo.MemberVO"%>
+<%@ page import="com.mini.vo.BoardVO"%>
+<%@ page import="com.mini.dao.BoardDAO"%>
+<%@ page import="java.util.ArrayList"%>
+<%
+	request.setCharacterEncoding("utf-8");
+	String listType = (String) request.getParameter("listType");
+	MemberVO member = (MemberVO) request.getSession().getAttribute("LOGIN_MEMBER");
+	MemberVO userNow = null;
+	BoardDAO dao = new BoardDAO();
+	MemberDAO mdao = new MemberDAO();
+	ArrayList<BoardVO> boardsSubs = dao.findMySubscribedBoards(member);
+	
+	
+	int bno = 0;
+	int cno = 0;
+	
+	if (request.getParameter("bno")!=null) {
+		bno = Integer.parseInt(request.getParameter("bno"));
+	} 
+	
+	if (request.getParameter("cno")!=null) {
+		cno = Integer.parseInt(request.getParameter("cno"));
+	}
+	
+	if (request.getParameter("user")!=null) {
+		userNow = mdao.getMemberByNo(Integer.parseInt(request.getParameter("user")));
+	}
+	
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<%@ include file="/include/include-header.jspf"%>
+<style>
+footer {
+	background-color: #2d2d30;
+	color: #f5f5f5;
+	padding: 15px;
+}
+
+footer a {
+	color: #f5f5f5;
+}
+
+footer a:hover {
+	color: #777;
+	text-decoration: none;
+}
+
+.container {
+	margin-top: 70px;
+}
+</style>
+</head>
+<body onload="focusBoard(<%=bno %>, <%=cno %>, '<%=listType%>');">
+
+	<!-------------------- 은중파트 시작 ----------------------->
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse"
+					data-target="#myNavbar">
+					<span class="icon-bar"></span> <span class="icon-bar"></span> <span
+						class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">MINI</a>
+			</div>
+			<div class="collapse navbar-collapse" id="myNavbar">
+				<form class="navbar-form navbar-left" role="search">
+					<div class="form-group input-group">
+						<input type="text" class="form-control" placeholder="search..">
+						<span class="input-group-btn">
+							<button class="btn btn-default" type="button">
+								<span class="glyphicon glyphicon-search"></span>
+							</button>
+						</span>
+					</div>
+				</form>
+				<ul class="nav navbar-nav navbar-right">
+					<li class="dropdown" id="NavChatArea"><a
+						class="dropdown-toggle" data-toggle="dropdown" href="#"> <span
+							class="glyphicon"></span> Chat <span class="caret"></span>
+					</a>
+						<ul class="dropdown-menu">
+							<li><input type="text" id="chatTitle" name="chatTitle" size="20" maxlength="100" placeholder="Chat Name.."/></li>
+							<li><button id="createNewChat" class="btn btn-info">Create New Chat</button></li>
+						</ul></li>
+					<li class="dropdown"><a class="dropdown-toggle"
+						data-toggle="dropdown" href="#"> <span
+							class="glyphicon glyphicon-user"></span> <span class="caret"></span>
+					</a>
+						<ul class="dropdown-menu">
+							<li><a href="#">내 정보</a></li>
+							<li><a href="member/logout.jsp">로그아웃</a></li>
+						</ul></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container text-center">
+		<div class="row">
+			<div class="col-sm-2 well" id="section_left">
+				<div class="well">
+					<a href="member/checkAccount.jsp"><img src="img/<%=member.getMemberPhoto()%>" class="img-circle" height="120" width="120"
+						alt="Avatar"></a> 
+					<p></p>	
+					<p>
+						<%=member.getMemberId()%>
+						(<%=member.getMemberName()%>)
+					</p>
+				</div>
+				<div class="well">
+					<p>
+						<a href="#">interests</a>
+					</p>
+					<p>
+						<span class="label label-default">News</span> <span
+							class="label label-primary">W3Schools</span> <span
+							class="label label-success">Labels</span> <span
+							class="label label-info">Football</span> <span
+							class="label label-warning">Gaming</span> <span
+							class="label label-danger">Friends</span>
+					</p>
+				</div>
+				<jsp:include page="/member/loadRequesters.jsp" flush="true" />
+				<div class="well" style="text-align:left; overflow:auto; width:160px; height:360px; padding:10px;">
+					<p style="text-align:center;">
+						<i class="material-icons" style="font-size:24px;color:#FF4000">people</i><strong style="font-size:18px; color:#0040FF;">Friends</strong>
+					</p>
+					<jsp:include page="/member/loadFriends.jsp" flush="true" />
+				</div>
+			</div>
+
+			<!-------------------- 은중파트 끝 ----------------------->
+			<!-------------------- 용학파트 시작 ----------------------->
+			<!-- 업데이트 -->
+			<!-- 업데이트 -->
+			<!-- 업데이트 -->
+			<div class="col-sm-7">
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="panel panel-default text-left">
+							<div class="panel-heading">
+								<span class="glyphicon glyphicon-pencil"></span><strong>Update</strong>
+							</div>
+							<form method="post" action="uploadFile.jsp"
+								enctype="multipart/form-data"
+								onsubmit="return checkUploadForm()">
+								<div class="panel-body">
+									<div class="row">
+										<div class="form-group">
+											<div class="col-sm-10">
+												<!-- 본문 -->
+												<!-- 본문 -->
+												<!-- 본문 -->
+												<textarea id="new-board-textarea-content"
+													name="board_content" class="form-control" cols="70"
+													rows="10" onkeyup="countNewBoardTextareaContent()"
+													onblur="checkContentMaxChar()"></textarea>
+											</div>
+											<!-- 태그열기닫기 -->
+											<!-- 태그열기닫기 -->
+											<div class="col-sm-2 pull-right pull-bottom">
+												<button type="button" id="update-add-tag"
+													class="form-control btn btn-default btn-sm"
+													onclick="showTagOnUpdate()" style="margin-top: 90px;">
+													<span class="glyphicon glyphicon-align-justify"> </span>
+													Tag
+												</button>
+												<!-- 클리어 -->
+												<!-- 클리어 -->
+												<button type="reset"
+													class="form-control btn btn-danger btn-sm"
+													style="margin-top: 10px;">Clear</button>
+												<!-- 올리기 -->
+												<!-- 올리기 -->
+												<button type="submit"
+													class="form-control btn btn-success btn-sm"
+													style="margin-top: 10px;">Update</button>
+											</div>
+										</div>
+									</div>
+									<!-- 태그 -->
+									<!-- 태그 -->
+									<!-- 태그 -->
+									<div class="row">
+										<input type="hidden" id="tag-on-update" name="board_tag"
+											class="form-control"
+											placeholder="ex ) #James #Anna #Pizza #Manhattan #NYC"
+											onblur="checkTagMax()"
+											style="margin-top: 5px; margin-left: 15px; width: 79%; display: inline;" />
+									</div>
+									<!-- 파일 -->
+									<!-- 파일 -->
+									<!-- 파일 -->
+									<div class="row">
+										<input type="file" name="board_file" id="upload-file"
+											class="form-control btn btn-default btn-sm"
+											style="margin-top: 5px; margin-left: 15px; width: 60%; display: inline;">
+										<div class="pull-right"
+											style="margin-right: 130px; margin-top: 15px">
+											<span id="textarea-content-size">0</span> / 1000
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<!-- 목록 불러오기 -->
+				<!-- 목록 불러오기 -->
+				<!-- 목록 불러오기 -->
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="panel panel-default text-center">
+							<div class="panel-body">
+								<a href="main.jsp?listType=main"><button type="button"
+										class="btn btn-primary" style="width: 140px;">All</button></a> <a
+									href="main.jsp?listType=me"><button type="button"
+										class="btn btn-success" style="width: 140px;">Me</button></a> <a
+									href="main.jsp?listType=subs"><button type="button"
+										class="btn btn-info" style="width: 140px;">Subscribe</button></a>
+								<a href="main.jsp?listType=news"><button type="button"
+										class="btn btn-warning" style="width: 140px;">News</button></a> 
+								<a href="main.jsp?listType=main"><button type="button"
+										class="btn btn-danger">
+										<span class="glyphicon glyphicon-refresh"></span>
+								</button></a>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 글 -->
+				<!-- 글 -->
+				<!-- 글 -->
+				<%
+					//메인 리스트
+					//메인 리스트
+					//메인 리스트
+					if ("main".equals(listType) || listType == null) {
+						ArrayList<BoardVO> boards = dao.findAllBoards(member);
+						if (boards != null) {
+							for (BoardVO board : boards) {
+								if (board.getMember_no() == member.getMemberNo()) {
+									
+					%>
+					<div class="row well" style="margin-left: 10px; margin-right: 10px;">
+						<div class="col-sm-3">
+
+							<img src="img/bird.jpg" class="img-circle" height="90" width="90"
+								alt="Avatar" style="margin-top: 10px;">
+							<p style="font-size: 18px; margin-top: 5px;">
+								<strong><a href="main.jsp?listType=main"><%=member.getMemberName()%></a></strong>
+							</p>
+
+						</div>
+						<div class="col-sm-9">
+							<div class="well" style="background-color: white;">
+							<%
+								if (board.getBoard_file()!=null) {				
+							%>
+								<div class="thumbnail">
+									<img src="img/board_img/<%=board.getBoard_file()%>" alt="picture">
+									<div class="caption">
+										<p><%=board.getBoard_tag()%></p>
+									</div>
+								</div>
+							<%	} %>
+								<p><%=board.getBoard_content()%></p>
+							</div>
+
+							<div>
+								<a href="board/like.jsp?bno="<%=board.getBoard_no() %>><button type="button" class="btn btn-default btn-sm">
+									<span class="glyphicon glyphicon-thumbs-up"></span> Like <%=board.getBoard_like_cnt() %>
+								</button></a>
+								<a href="board/subscribe.jsp?bno="<%=board.getBoard_no() %>><button type="button" class="btn btn-default btn-sm">
+									<span class="glyphicon glyphicon-pushpin"></span> Subs
+								</button></a>
+								<a href="board/edit.jsp?bno="<%=board.getBoard_no() %>><button type="button" class="btn btn-default btn-sm">
+									<span class="glyphicon glyphicon-wrench"></span> Edit
+								</button></a>
+								<a href="board/delete.jsp?bno="<%=board.getBoard_no() %>><button type="button" class="btn btn-default btn-sm">
+									<span class="glyphicon glyphicon-trash"></span> Del
+								</button></a>
+								<!-- 
+								<button type="button" class="btn btn-default btn-sm">
+									<span class="glyphicon glyphicon-align-justify"></span> Tag
+								</button> -->
+								<button type="button" class="btn btn-default btn-sm"
+									onclick="commentsClicked(<%=board.getBoard_no() %>, '<%=listType%>')">
+									<span class="glyphicon glyphicon-menu-down" id="comment-btn-<%=board.getBoard_no() %>"></span>
+									Comments
+								</button>
+								<!-- 댓글표시 -->
+								<!-- 댓글표시 -->
+								<!-- 댓글표시 -->
+								<div id="comment-list-<%=board.getBoard_no() %>" style="display:none">
+								<!-- 댓글입력폼 -->
+								<!-- 댓글입력폼 -->
+								<!-- 댓글입력폼 -->
+									<div>
+										<div class='row thumbnail' style='margin-top:15px; padding-top:10px; padding-bottom:10px; padding-right:20px'>
+											<div class='col-sm-3'><div class='row'>
+												<img src='img/board_img/<%=member.getMemberPhoto()%>' class='img-circle' height='40' width='40' alt='Avatar' style='margin-top: 10px;'>
+											</div>
+											<div style='margin-top:3px'>
+												<a href='main.jsp?listType=main'><%=member.getMemberName() %></a>
+											</div>
+											</div>
+											<form class='form-group' method='post' action='board/updatecomment.jsp?listType=<%=listType %>'>
+												<input type='hidden' name='board_level' value='<%=board.getBoard_no() %>'>
+												<div class='col-sm-8' style='text-align:left; margin-right:0; '>
+													<textarea name='board_content' class='form-control' rows='3'></textarea>
+												</div>
+												<div class='col-sm-1' style='margin-top:20px; padding-left:0; margin-left:0'>
+													<button class='btn btn-success btn-xs form-group'>reply</button>
+												</div>
+											</form>
+										</div>
+								<!-- 댓글리스트 -->
+								<!-- 댓글리스트 -->
+								<!-- 댓글리스트 -->
+								<%
+								ArrayList<BoardVO> comments = dao.findCommentsByBoardNo(board.getBoard_no());
+								if (comments!=null) {
+									for (BoardVO comment : comments) {
+										if (comment.getMember_no() == member.getMemberNo()) {									
+								%>
+								<!-- 본인의 댓글 -->
+								<!-- 본인의 댓글 -->
+								<!-- 본인의 댓글 -->
+										<div>
+											<div class="row thumbnail" id="board-<%=board.getBoard_no()%>-comment-<%=comment.getBoard_no() %>" style="margin-top:15px; padding-top:10px; padding-bottom:10px; padding-right:20px">
+												<div class="col-sm-3">
+													<div class="row">
+														<img src="img/bird.jpg" class="img-circle" height="40" width="40" alt="Avatar" style="margin-top: 10px;">
+													</div>
+													<div style="margin-top:3px">
+														<a href="main.jsp?listType=user&member_no="<%=comment.getMember_no()%>><%=comment.getMember_name() %></a>
+													</div>
+													<div style="margin-top:10px">
+														<a href="board/like?boardNo=<%=comment.getBoard_no() %>"><span class="glyphicon glyphicon-thumbs-up"></span><%=comment.getBoard_like_cnt() %></a>
+														<a href="board/delete?boardNo=<%=comment.getBoard_no()%>"><span class="glyphicon glyphicon-trash"></span></a>
+													</div>
+												</div>
+												<div class="col-sm-9" style="text-align:left; "><%=comment.getBoard_content() %>
+												</div>						
+											</div>										
+										</div>
+								<%		} else { %>
+								<!-- 친구의 댓글 -->
+								<!-- 친구의 댓글 -->
+								<!-- 친구의 댓글 -->
+										<div>
+											<div class="row thumbnail" id="board-<%=board.getBoard_no()%>-comment-<%=comment.getBoard_no() %>" style="margin-top:15px; padding-top:10px; padding-bottom:10px; padding-right:20px">
+												<div class="col-sm-3">
+													<div class="row">
+														<img src="img/bird.jpg" class="img-circle" height="40" width="40" alt="Avatar" style="margin-top: 10px;">
+													</div>
+													<div style="margin-top:3px">
+														<a href="main.jsp?listType=user&member_no="<%=comment.getMember_no()%>><%=comment.getMember_name() %></a>
+														<a href="board/like?boardNo=<%=comment.getBoard_no() %>"><span class="glyphicon glyphicon-thumbs-up"></span><%=comment.getBoard_like_cnt() %></a>
+													</div>
+												</div>
+												<div class="col-sm-9" style="text-align:left; "><%=comment.getBoard_content() %>
+												</div>						
+											</div>										
+										</div>																	
+								<%		}
+									}
+								}
+									%>
+									</div>							
+								</div>
+							<!-- 댓글끝 -->
+							<!-- 댓글끝 -->
+							<!-- 댓글끝 -->
+								
+							</div>
+						</div>
+					</div>
+						
+				<%
+					} else {
+				%>
+				<div class="row well" style="margin-left: 10px; margin-right: 10px">
+					<div class="col-sm-3">
+
+						<img src="img/ny.jpg" class="img-circle" height="90" width="90"
+							alt="Avatar" style="margin-top: 10px;">
+						<p style="font-size: 18px; margin-top: 5px;">
+							<a href="main.jsp?listType=user&member_no=<%=board.getMember_no()%>"><%=board.getMember_name() %></a>
+						</p>
+
+					</div>
+					<div class="col-sm-9">
+						<div class="well" style="background-color: white;">
+						<%
+							if (board.getBoard_file()!=null) {				
+						%>
+							<div class="thumbnail">
+								<img src="img/board_img/<%=board.getBoard_file()%>" alt="picture">
+								<div class="caption">
+									<p><%=board.getBoard_tag()%></p>
+								</div>
+							</div>
+						<%	} %>
+							<p><%=board.getBoard_content() %></p>
+						</div>
+
+						<div>
+							<a href="board/like.jsp?bno="<%=board.getBoard_no() %>><button type="button" class="btn btn-default btn-sm">
+								<span class="glyphicon glyphicon-thumbs-up"></span> Like <%=board.getBoard_like_cnt() %>
+							</button></a>
+							<a href="board/subscribe.jsp?bno="<%=board.getBoard_no() %>><button type="button" class="btn btn-default btn-sm">
+								<span class="glyphicon glyphicon-pushpin"></span> Subs
+							</button></a>
+							<button type="button" class="btn btn-default btn-sm"
+								onclick="commentsClicked(<%=board.getBoard_no() %>, '<%=listType%>')">
+								<span class="glyphicon glyphicon-menu-down" id="comment-btn-<%=board.getBoard_no() %>"></span>
+								Comments
+							</button>
+							
+								<!-- 댓글표시 -->
+								<!-- 댓글표시 -->
+								<!-- 댓글표시 -->
+								<div id="comment-list-<%=board.getBoard_no() %>" style="display:none">
+								<!-- 댓글입력폼 -->
+								<!-- 댓글입력폼 -->
+								<!-- 댓글입력폼 -->
+									<div>
+										<div class='row thumbnail' style='margin-top:15px; padding-top:10px; padding-bottom:10px; padding-right:20px'>
+											<div class='col-sm-3'><div class='row'>
+												<img src='img/board_img/<%=member.getMemberPhoto()%>' class='img-circle' height='40' width='40' alt='Avatar' style='margin-top: 10px;'>
+											</div>
+											<div style='margin-top:3px'>
+												<a href='main.jsp?listType=main'><%=member.getMemberName() %></a>
+											</div>
+											</div>
+												<form class='form-group' method='post' action='board/updatecomment.jsp?listType=<%=listType %>'>
+												<input type='hidden' name='board_level' value='<%=board.getBoard_no() %>'>
+												<div class='col-sm-8' style='text-align:left; margin-right:0; '>
+													<textarea name='board_content' class='form-control' rows='3'></textarea>
+												</div>
+												<div class='col-sm-1' style='margin-top:20px; padding-left:0; margin-left:0'>
+													<button class='btn btn-success btn-xs form-group'>reply</button>
+												</div>
+											</form>
+										</div>
+								<!-- 댓글리스트 -->
+								<!-- 댓글리스트 -->
+								<!-- 댓글리스트 -->
+								<%
+									ArrayList<BoardVO> comments = dao.findCommentsByBoardNo(board.getBoard_no());
+								if (comments!=null) {
+									for (BoardVO comment : comments) {
+										if (comment.getMember_no() == member.getMemberNo()) {									
+								%>
+								<!-- 본인의 댓글 -->
+								<!-- 본인의 댓글 -->
+								<!-- 본인의 댓글 -->
+										<div>
+											<div class="row thumbnail" id="board-<%=board.getBoard_no()%>-comment-<%=comment.getBoard_no() %>" style="margin-top:15px; padding-top:10px; padding-bottom:10px; padding-right:20px">
+												<div class="col-sm-3">
+													<div class="row">
+														<img src="img/bird.jpg" class="img-circle" height="40" width="40" alt="Avatar" style="margin-top: 10px;">
+													</div>
+													<div style="margin-top:3px">
+														<a href="main.jsp?listType=user&member_no="<%=comment.getMember_no()%>><%=comment.getMember_name() %></a>
+													</div>
+													<div style="margin-top:10px">
+														<a href="board/like?boardNo=<%=comment.getBoard_no() %>"><span class="glyphicon glyphicon-thumbs-up"></span><%=comment.getBoard_like_cnt() %></a>
+														<a href="board/delete?boardNo=<%=comment.getBoard_no()%>"><span class="glyphicon glyphicon-trash"></span></a>
+													</div>
+												</div>
+												<div class="col-sm-9" style="text-align:left; "><%=comment.getBoard_content() %>
+												</div>						
+											</div>										
+										</div>
+								<%		} else { %>
+								<!-- 친구의 댓글 -->
+								<!-- 친구의 댓글 -->
+								<!-- 친구의 댓글 -->
+										<div>
+											<div class="row thumbnail" id="board-<%=board.getBoard_no()%>-comment-<%=comment.getBoard_no() %>" style="margin-top:15px; padding-top:10px; padding-bottom:10px; padding-right:20px">
+												<div class="col-sm-3">
+													<div class="row">
+														<img src="img/bird.jpg" class="img-circle" height="40" width="40" alt="Avatar" style="margin-top: 10px;">
+													</div>
+													<div style="margin-top:3px">
+														<a href="main.jsp?listType=user&member_no="<%=comment.getMember_no()%>><%=comment.getMember_name() %></a>
+														<a href="board/like?boardNo=<%=comment.getBoard_no() %>"><span class="glyphicon glyphicon-thumbs-up"></span><%=comment.getBoard_like_cnt() %></a>
+													</div>
+												</div>
+												<div class="col-sm-9" style="text-align:left; "><%=comment.getBoard_content() %>
+												</div>						
+											</div>										
+										</div>																	
+								<%		}
+									}
+								}
+									%>
+									</div>							
+								</div>
+							<!-- 댓글끝 -->
+							<!-- 댓글끝 -->
+							<!-- 댓글끝 -->
+						</div>
+					</div>
+				</div>
+				<%
+						}
+					}
+				}
+						//Me 리스트
+						//Me 리스트
+						//Me 리스트
+				} else if ("me".equals(listType)) {
+						ArrayList<BoardVO> boardsOnMe = dao.findBoardsOnMe(member);
+						if (boardsOnMe != null) {
+							for (BoardVO board : boardsOnMe) {								
+								%>
+								<div class="row well" style="margin-left: 10px; margin-right: 10px">
+									<div class="col-sm-3">
+	
+										<img src="img/bird.jpg" class="img-circle" height="90" width="90"
+											alt="Avatar" style="margin-top: 10px;">
+										<p style="font-size: 18px; margin-top: 5px;">
+											<strong><a href="main.jsp?listType=main"><%=member.getMemberName()%></a></strong>
+										</p>
+	
+									</div>
+									<div class="col-sm-9">
+										<div class="well" style="background-color: white;">
+										<%
+											if (board.getBoard_file()!=null) {				
+										%>
+											<div class="thumbnail">
+												<img src="img/board_img/<%=board.getBoard_file()%>" alt="picture">
+												<div class="caption">
+													<p><%=board.getBoard_tag()%></p>
+												</div>
+											</div>
+										<%	} %>
+											<p><%=board.getBoard_content()%></p>
+										</div>
+	
+										<div>
+											<a href="board/like.jsp?bno="<%=board.getBoard_no() %>><button type="button" class="btn btn-default btn-sm">
+												<span class="glyphicon glyphicon-thumbs-up"></span> Like <%=board.getBoard_like_cnt() %>
+											</button></a>
+											<a href="board/subscribe.jsp?bno="<%=board.getBoard_no() %>><button type="button" class="btn btn-default btn-sm">
+												<span class="glyphicon glyphicon-pushpin"></span> Subs
+											</button></a>
+											<a href="board/edit.jsp?bno="<%=board.getBoard_no() %>><button type="button" class="btn btn-default btn-sm">
+												<span class="glyphicon glyphicon-wrench"></span> Edit
+											</button></a>
+											<a href="board/delete.jsp?bno="<%=board.getBoard_no() %>><button type="button" class="btn btn-default btn-sm">
+												<span class="glyphicon glyphicon-trash"></span> Del
+											</button></a>
+											<!-- 
+											<button type="button" class="btn btn-default btn-sm">
+												<span class="glyphicon glyphicon-align-justify"></span> Tag
+											</button> -->
+											<button type="button" class="btn btn-default btn-sm"
+												onclick="commentsClicked(<%=board.getBoard_no() %>, '<%=listType%>')">
+												<span class="glyphicon glyphicon-menu-down" id="comment-btn-<%=board.getBoard_no() %>"></span>
+												Comments
+											</button>
+											<!-- 댓글표시 -->
+											<!-- 댓글표시 -->
+											<!-- 댓글표시 -->
+											<div id="comment-list-<%=board.getBoard_no() %>" style="display:none">
+											<!-- 댓글입력폼 -->
+											<!-- 댓글입력폼 -->
+											<!-- 댓글입력폼 -->
+												<div>
+													<div class='row thumbnail' style='margin-top:15px; padding-top:10px; padding-bottom:10px; padding-right:20px'>
+														<div class='col-sm-3'><div class='row'>
+															<img src='img/board_img/<%=member.getMemberPhoto()%>' class='img-circle' height='40' width='40' alt='Avatar' style='margin-top: 10px;'>
+														</div>
+														<div style='margin-top:3px'>
+															<a href='main.jsp?listType=main'><%=member.getMemberName() %></a>
+														</div>
+														</div>
+														<form class='form-group' method='post' action='board/updatecomment.jsp?listType=<%=listType %>'>
+															<input type='hidden' name='board_level' value='<%=board.getBoard_no() %>'>
+															<div class='col-sm-8' style='text-align:left; margin-right:0; '>
+																<textarea name='board_content' class='form-control' rows='3'></textarea>
+															</div>
+															<div class='col-sm-1' style='margin-top:20px; padding-left:0; margin-left:0'>
+																<button class='btn btn-success btn-xs form-group'>reply</button>
+															</div>
+														</form>
+													</div>
+											<!-- 댓글리스트 -->
+											<!-- 댓글리스트 -->
+											<!-- 댓글리스트 -->
+											<%
+												ArrayList<BoardVO> comments = dao.findCommentsByBoardNo(board.getBoard_no());
+											if (comments!=null) {
+												for (BoardVO comment : comments) {
+													if (comment.getMember_no() == member.getMemberNo()) {									
+											%>
+											<!-- 본인의 댓글 -->
+											<!-- 본인의 댓글 -->
+											<!-- 본인의 댓글 -->
+													<div>
+														<div class="row thumbnail" id="board-<%=board.getBoard_no()%>-comment-<%=comment.getBoard_no() %>" style="margin-top:15px; padding-top:10px; padding-bottom:10px; padding-right:20px">
+															<div class="col-sm-3">
+																<div class="row">
+																	<img src="img/bird.jpg" class="img-circle" height="40" width="40" alt="Avatar" style="margin-top: 10px;">
+																</div>
+																<div style="margin-top:3px">
+																	<a href="main.jsp?listType=user&member_no="<%=comment.getMember_no()%>><%=comment.getMember_name() %></a>
+																</div>
+																<div style="margin-top:10px">
+																	<a href="board/like?boardNo=<%=comment.getBoard_no() %>"><span class="glyphicon glyphicon-thumbs-up"></span><%=comment.getBoard_like_cnt() %></a>
+																	<a href="board/delete?boardNo=<%=comment.getBoard_no()%>"><span class="glyphicon glyphicon-trash"></span></a>
+																</div>
+															</div>
+															<div class="col-sm-9" style="text-align:left; "><%=comment.getBoard_content() %>
+															</div>						
+														</div>										
+													</div>
+											<%		} else { %>
+											<!-- 친구의 댓글 -->
+											<!-- 친구의 댓글 -->
+											<!-- 친구의 댓글 -->
+													<div>
+														<div class="row thumbnail" id="board-<%=board.getBoard_no()%>-comment-<%=comment.getBoard_no() %>" style="margin-top:15px; padding-top:10px; padding-bottom:10px; padding-right:20px">
+															<div class="col-sm-3">
+																<div class="row">
+																	<img src="img/bird.jpg" class="img-circle" height="40" width="40" alt="Avatar" style="margin-top: 10px;">
+																</div>
+																<div style="margin-top:3px">
+																	<a href="main.jsp?listType=user&member_no="<%=comment.getMember_no()%>><%=comment.getMember_name() %></a>
+																	<a href="board/like?boardNo=<%=comment.getBoard_no() %>"><span class="glyphicon glyphicon-thumbs-up"></span><%=comment.getBoard_like_cnt() %></a>
+																</div>
+															</div>
+															<div class="col-sm-9" style="text-align:left; "><%=comment.getBoard_content() %>
+															</div>						
+														</div>										
+													</div>																	
+											<%		}
+												}
+											}
+												%>
+												</div>							
+												<div class="text-center">
+													<ul class="pagination-sm">
+														<%
+															for (int index = 1; index <= 1; index++) {
+																if (1 == index) {
+														%>
+														<li class="active"><a href="#"><%=index%></a></li>
+														<%
+																} else if (!(2 == index)) {
+														%>
+														<li><a href="index_2.jsp?pno=<%=index%>"><%=index%></a></li>
+														<%
+																}
+															}
+														
+														%>
+													</ul>
+												</div>
+											</div>
+										<!-- 댓글끝 -->
+										<!-- 댓글끝 -->
+										<!-- 댓글끝 -->
+										
+										</div>
+									</div>
+								</div>
+								<%
+								}
+							}
+						
+						//Subs
+						//Subs
+						//Subs
+				} else if ("subs".equals(listType)) {
+
+						//News
+						//News
+						//News
+				} else if ("news".equals(listType)) {
+
+				}
+				%>
+				<div>
+					<div class="panel-footer text-center"
+						style="background-color: white;">
+						<ul class="pagination">
+							<%
+								for (int index = 1; index <= 1; index++) {
+									if (1 == index) {
+							%>
+							<li class="active"><a href="#"><%=index%></a></li>
+							<%
+									} else if (!(2 == index)) {
+							%>
+							<li><a href="index_2.jsp?pno=<%=index%>"><%=index%></a></li>
+							<%
+									}
+								}
+							
+							%>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<!-------------------- 용학파트 끝 ----------------------->
+			<!-------------------- 유석파트 시작 ----------------------->
+			<div class="col-sm-3 well" id="section_right">
+				<div class="well" style="text-align:left; overflow:auto; width:250px; height:365px; padding:10px;">
+					<p style="text-align:center;">
+						<i class="fa fa-comments" style="font-size:30px;color:#FA5858"></i><strong style="font-size:20px; color:#2E9AFE;">Chat List</strong>
+					</p>
+					<jsp:include page="/chat/loadChatList.jsp" flush="true" />
+				</div>
+				<div class="well" style="text-align:left; overflow:auto; width:250px; height:375px; padding:10px;">
+					<p style="text-align:center;">
+						<i class="material-icons" style="font-size:22px;color:#2E64FE">people</i><strong style="font-size:14px; color:#0B610B;">Around People</strong>
+					</p>
+					<jsp:include page="/people/loadAroundPeople.jsp" flush="true" />
+				</div>
+			</div>
+		</div>
+	</div>
+			<!-------------------- 유석파트 끝 ----------------------->
+	<%@ include file="include/include-footer.jspf"%>
+</body>
+<script>
+	var tagOnUpdateFlag = false;
+	var maxHashTag = 20;
+	
+	function backward() {
+		history.back();
+	}
+	
+	function focusBoard(bno, cno, listType) {
+		commentsClicked(bno, 'listType');
+		var here = document.getElementById('board-'+bno+'-comment-'+cno);
+
+		here.scrollIntoView(false);
+		here.setAttribute("style", "border:solid #b3d1ff 3px");
+	}
+	
+	function checkReplyForm(no) {
+	// 댓글에 2글자 이상 입력됬는지 확인하기
+		var textarea = document.getElementById('reply-textarea-'+no);
+		var content = textarea.value;
+		
+		if (content.length < 2) {
+			textarea.focus();
+			alert("The field must have more than 2 characters.");
+			return false;
+		}
+		return true;
+	}	
+	
+	function checkUploadForm() {	
+		// 업로드에 2글자 이상 입력됬는지 확인하기
+		var textarea = document.getElementById('new-board-textarea-content');
+		var content = textarea.value;
+
+		if (content.length < 2) {
+			var cutContent = content.substring(0, 1000);
+			textarea.value = cutContent;
+			textarea.focus();
+			countNewBoardTextareaContent();
+			alert("The field must have more than 2 characters.");
+			return false;
+		}
+		// 업로드 파일 형식 체크
+		var file = document.getElementById('upload-file');
+		console.log(file.value);
+		if (file.value != "") {
+			if (!(file.value.toLowerCase().endsWith("gif")
+					|| file.value.toLowerCase().endsWith("png") || file.value
+					.toLowerCase().endsWith("jpg"))) {
+				alert("only jpg,png and gif files are allowed to upload.");
+				file.value = "";
+				return false;
+			}
+		}
+
+		return true;
+	}
+	// 태그 20개이상 넘는지 확인하기
+	function checkTagMax() {
+		var tagField = document.getElementById('tag-on-update');
+		var tagValue = tagField.value;
+		var tagArray = tagValue.split("#");
+		var tagArrayTemp = "";
+		if (tagArray.length > maxHashTag + 1) {
+			for (var i = 1; i < maxHashTag + 1; i++) {
+				tagArrayTemp += "#" + tagArray[i];
+			}
+			tagField.value = tagArrayTemp;
+			tagField.focus();
+			alert("Sorry, this post has too many tags attached(maximum: "
+					+ maxHashTag + ").");
+		}
+	}
+	// 컨텐트 글자가 1000자가 넘는지 확인하기
+	function checkContentMaxChar() {
+		var textarea = document.getElementById('new-board-textarea-content');
+		var content = textarea.value;
+
+		if (content.length > 1000) {
+			var cutContent = content.substring(0, 1000);
+			textarea.value = cutContent;
+			textarea.focus();
+			countNewBoardTextareaContent();
+			alert("The field must not have more than 1000 characters.");
+		}
+	}
+	//새글 태그버튼 클릭시 일어나는 이벤트
+	function showTagOnUpdate() {
+		var tagArea = document.getElementById('tag-on-update');
+		if (tagOnUpdateFlag) {
+			tagArea.setAttribute('type', 'hidden');
+			tagArea.value = "";
+			tagOnUpdateFlag = false;
+		} else if (!tagOnUpdateFlag) {
+			tagArea.setAttribute('type', 'text');
+			tagOnUpdateFlag = true;
+		}
+	}
+
+	function countNewBoardTextareaContent() {
+		var textarea = document.getElementById('new-board-textarea-content');
+		var content = textarea.value;
+		var textareaSize = content.length;
+
+		document.getElementById('textarea-content-size').innerText = textareaSize;
+	}
+	// 코멘트를 눌렀을때 일어나는 이벤트
+	function commentsClicked(no, listType) {
+		var span = document.getElementById('comment-btn-'+no);
+		var arr = span.getAttribute('class').split("-");
+		if (arr[2] == 'down') {
+			span.setAttribute('class', 'glyphicon glyphicon-menu-up');
+			document.getElementById('comment-list-'+no).setAttribute('style', 'display:inline;');
+			
+		} else if (arr[2] == 'up') {
+			span.setAttribute('class', 'glyphicon glyphicon-menu-down');
+			document.getElementById('comment-list-'+no).setAttribute('style', 'display:none;');
+		}
+	}
+
+	
+	$(document).ready(function() {
+
+		$("#top_btn").click(function() {
+			$('html,body').animate({
+				scrollTop : 0
+			}, 800)
+		});
+
+		$("#createNewChat").click(function() {
+			var chatTitle = $("#chatTitle").val().trim();
+			if (null == chatTitle || "" == chatTitle) {
+				alert("Please, Enter a chat title.");
+				$("#chatTitle").focus();
+				return false;
+			}
+			
+			location.href = "chat/createNewChat.jsp?chatTitle="+chatTitle;
+		});
+
+		$("#NavChatArea").click(function() {
+			$("#chatTitle").focus();
+		});
+
+		var leftCurrentPosition = parseInt($("#section_left").css("top"));  
+		var rightCurrentPosition = parseInt($("#section_right").css("top"));  
+	    $(window).scroll(function() {  
+            var position = $(window).scrollTop();  
+            $("#section_left").stop().animate({"top":position+leftCurrentPosition+"px"},800);  
+            $("#section_right").stop().animate({"top":position+rightCurrentPosition+"px"},800);  
+	    });  
+
+	});
+</script>
+</html>

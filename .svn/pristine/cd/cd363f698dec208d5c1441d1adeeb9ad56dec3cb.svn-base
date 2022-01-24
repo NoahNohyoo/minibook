@@ -1,0 +1,168 @@
+<%@page import="java.util.Random"%>
+<%@page import="com.mini.util.MD5"%>
+<%@page import="com.mini.dao.MemberDAO"%>
+<%@page import="com.mini.vo.MemberVO"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+	request.setCharacterEncoding("utf-8");
+
+	MemberDAO dao = new MemberDAO();
+	
+	String name = request.getParameter("name");
+	String email = request.getParameter("email");
+
+	String memberId = "";
+	MemberVO member = dao.getIdByNameAndEmail(name, email);
+	if (null != member) {
+		memberId = member.getMemberId();
+	}
+		
+	
+%>
+
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+<title>Mini Facebook</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="shortcut icon" href="https://www.facebook.com/images/fb_icon_325x325.png">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<style>
+.container {
+		margin-top:100px;
+}
+
+body {
+    background-color: #A9BCF5;
+}
+
+.text-center {
+	position: fixed;
+	bottom: 0px;
+	width: 100%;
+	background-color: #F2F2F2;
+}
+.col-sm-6 div {
+	font-size:16px;
+}
+.col-sm-6 div strong {
+	font-size:18px;
+}
+
+p {
+    font-size: 120%;
+    text-align: center;
+}
+</style>
+</head>
+
+<body id="body" data-spy="scroll" data-target=".navbar" data-offset="50">
+	
+<nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>                        
+      </button>
+      <a class="navbar-brand" href="intro.jsp">MINI</a>
+    </div>
+    <div class="collapse navbar-collapse" id="myNavbar">
+	   <form method="post" action="member/login.jsp" autocomplete="on">
+	      <ul class="nav navbar-nav navbar-right">     
+			<li>아이디<input type="text" id="memId" name="memId" class="form-control" placeholder="아이디"></li>
+			<li>비밀번호<input type="password" id="memPwd" name="memPwd" class="form-control" placeholder="비밀번호"></li>
+			<li><a href="getAccount.jsp">Forgot id and password?</a></li> 	
+			<li><button type="submit" class="form-control">로그인</button></li>
+	      </ul>
+	    </form>
+    </div>
+  </div>
+</nav>
+<div class= "container">
+			
+	<div class="row">
+		<div class="col-md-6">
+			<form method="post" action="getId.jsp">
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+								Find your ID
+					</div>
+					<div class="panel-body">
+						<div class="form-group">
+							<label>Type your name</label>
+							<input type="text" class="form-control" id="name" name="name">
+						</div>
+					</div>
+					<div class="panel-body">
+						<div class="form-group">
+							<label>Type your email</label>
+							<input type="text" class="form-control" id="email" name="email">
+						</div>
+					</div>
+					<div class="panel-body">
+						<div class="form-group">
+							<label>Your ID</label>
+							<%
+								if (null == memberId || "".equals(memberId)) {
+							%>		
+								<p>일치하는 회원정보가 없습니다.</p>
+							<%	
+								} else {
+							%>
+								<p><strong><%=memberId%></strong></p>
+							<%
+								}
+							%>
+						</div>	
+					<button type="submit" class="btn btn-primary pull-right">Submit</button>
+					</div>
+				</div>
+			</form>
+	</div>		
+				
+	
+		<div class="col-md-6">
+			<form method="post" action="getPwd.jsp"> 
+				<div class="panel panel-primary">
+					<div class="panel-heading">
+								Find your Password
+					</div>
+					<div class="panel-body">
+						<div class="form-group">
+							<label>Type your name</label>
+							<input type="text" class="form-control" id="user_name" name="name">
+						</div>
+					</div>
+					<div class="panel-body">
+						<div class="form-group">
+							<label>Type your email</label>
+							<input type="text" class="form-control" id="user_email" name="email">
+						</div>
+					</div>	
+
+					<div class="panel-body">
+						<div class="form-group">
+							<label>Type your ID</label>
+							<input type="text" class="form-control" id="user_id" name="id">
+						</div>
+						<button type="submit" class="btn btn-primary pull-right">Submit</button>	
+					</div>
+					
+				</div>
+			</form>
+		</div>
+	</div>	
+</div>
+
+</body>
+</html>
+
+
+

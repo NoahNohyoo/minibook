@@ -1,0 +1,222 @@
+package com.mini.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+
+import com.mini.util.ConnectionUtil;
+import com.mini.vo.MemberVO;
+
+
+
+public class MemberDAO {
+
+	public void addMember(MemberVO member) throws Exception {
+		String sql = "insert into tb_member 															"											
+					+" (member_no, member_contact, member_lng, member_lat, member_id,					"
+					+"member_pwd, member_email, member_gender, member_name, member_addr, member_birth) 	"
+					+"values (seq_member_no.nextval, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+
+		Connection con = ConnectionUtil.getConnection();
+		PreparedStatement pstmt = con.prepareStatement(sql);
+		pstmt.setString(1, member.getMemberContact());
+		pstmt.setDouble(2, member.getMemberLng());
+		pstmt.setDouble(3, member.getMemberLat());
+		pstmt.setString(4, member.getMemberId());
+		pstmt.setString(5, member.getMemberPwd());
+		pstmt.setString(6, member.getMemberEmail());
+		pstmt.setString(7, member.getMemberGender());
+		pstmt.setString(8, member.getMemberName());
+		pstmt.setString(9, member.getMemberAddr());
+		pstmt.setString(10, member.getMemberBirth());
+		
+		pstmt.executeUpdate();
+		
+		con.close();
+		pstmt.close();
+	}
+	
+		public MemberVO getMemberById(String id) throws Exception {
+			String sql = "select member_no, member_contact, member_lng, member_lat, member_id,"
+					+ " member_pwd, member_email, member_gender, member_name, member_addr, member_birth, member_photo "
+					+ " from tb_member "
+					+ " where member_id = ?";
+			
+			MemberVO member = null;
+			
+			Connection con = ConnectionUtil.getConnection();
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, id);
+			ResultSet rs = pstmt.executeQuery();
+			
+			if (rs.next()) {
+				member = new MemberVO();
+				member.setMemberNo(rs.getInt("member_no"));
+				member.setMemberContact(rs.getString("member_contact"));
+				member.setMemberLng(rs.getDouble("member_lng"));
+				member.setMemberLat(rs.getDouble("member_lat"));
+				member.setMemberId(rs.getString("member_id"));
+				member.setMemberPwd(rs.getString("member_pwd"));
+				member.setMemberEmail(rs.getString("member_email"));
+				member.setMemberGender(rs.getString("member_gender"));
+				member.setMemberName(rs.getString("member_name"));
+				member.setMemberAddr(rs.getString("member_addr"));
+				member.setMemberBirth(rs.getString("member_birth"));
+				member.setMemberPhoto(rs.getString("member_photo"));
+				
+			}
+			
+			rs.close();
+			con.close();
+			pstmt.close();
+			return member;
+		
+		}
+		
+		public void updateMember(MemberVO member) throws Exception {
+			String sql = "update tb_member"
+						+ " set member_pwd = ?, member_email = ?, member_gender = ?, member_name = ?, "
+						+ " member_addr = ?, member_birth = ?, member_contact = ?, member_photo = ? " 
+						+ " where member_no = ?";
+
+			Connection con = ConnectionUtil.getConnection();
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, member.getMemberPwd());
+			pstmt.setString(2, member.getMemberEmail());
+			pstmt.setString(3, member.getMemberGender());
+			pstmt.setString(4, member.getMemberName());
+			pstmt.setString(5, member.getMemberAddr());
+			pstmt.setString(6, member.getMemberBirth());
+			pstmt.setString(7, member.getMemberContact());
+			pstmt.setString(8, member.getMemberPhoto());
+			
+			pstmt.executeUpdate();
+			
+			con.close();
+			pstmt.close();
+		}
+		
+		public void withdrawalMember(int mno) throws Exception {
+			String sql = "delete from tb_member where member_no = ?";
+			
+			Connection con = ConnectionUtil.getConnection();
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, mno);
+			pstmt.executeUpdate();
+			
+			pstmt.close();
+			con.close();
+			
+		}
+		
+		public boolean checkAccount(String mid, String mpwd) throws Exception {
+			boolean result = false;
+			String sql = "select member_no		"
+						+"from tb_member		"
+						+"where member_id = ?	"
+						+"and member_pwd = ?";
+			
+			Connection con = ConnectionUtil.getConnection();
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, mid);
+			pstmt.setString(2, mpwd);
+			ResultSet rs = pstmt.executeQuery();
+			
+			if (rs.next()) {
+				result = true;
+			}
+			
+			pstmt.close();
+			con.close();
+			return result;
+			
+		}
+		
+		public ArrayList<MemberVO> getFriendsByMemberNo(int memberNo) throws Exception {
+			
+			String sql = "select member_no, member_id, member_name, member_photo, member_is_logined	"
+						+"from tb_member															"
+						+"where member_no in (select friend_no										"
+						+"				from tb_friend												"
+						+"				where member_no = ?											"
+						+"				and friend_agree = 'Y')										"
+						+"order by member_is_logined desc";
+			
+			Connection con = ConnectionUtil.getConnection();
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, memberNo);
+			ResultSet rs = pstmt.executeQuery();
+			
+			ArrayList<MemberVO> friends = new ArrayList<>();
+			while (rs.next()) {
+				MemberVO member = new MemberVO();
+				member.setMemberNo(rs.getInt("member_no"));
+				member.setMemberId(rs.getString("member_id"));
+				member.setMemberName(rs.getString("member_name"));
+				member.setMemberPhoto(rs.getString("member_photo"));
+				member.setMemberIsLogined(rs.getString("member_is_logined"));
+				friends.add(member);
+			}
+			
+			rs.close();
+			con.close();
+			pstmt.close();
+			return friends;
+		
+		}
+		
+		public MemberVO getMemberByNo(int no) throws Exception {
+			
+			String sql = "select member_no, member_contact, member_lng, member_lat, member_id,"
+					+ " member_pwd, member_email, member_gender, member_name, member_addr, member_birth, member_photo "
+					+ " from tb_member "
+					+ " where member_no = ?";
+			
+			MemberVO member = null;
+			
+			Connection con = ConnectionUtil.getConnection();
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, no);
+			ResultSet rs = pstmt.executeQuery();
+			
+			if (rs.next()) {
+				member = new MemberVO();
+				member.setMemberNo(rs.getInt("member_no"));
+				member.setMemberContact(rs.getString("member_contact"));
+				member.setMemberLng(rs.getDouble("member_lng"));
+				member.setMemberLat(rs.getDouble("member_lat"));
+				member.setMemberId(rs.getString("member_id"));
+				member.setMemberPwd(rs.getString("member_pwd"));
+				member.setMemberEmail(rs.getString("member_email"));
+				member.setMemberGender(rs.getString("member_gender"));
+				member.setMemberName(rs.getString("member_name"));
+				member.setMemberAddr(rs.getString("member_addr"));
+				member.setMemberBirth(rs.getString("member_birth"));
+				member.setMemberPhoto(rs.getString("member_photo"));
+				
+			}
+			
+			rs.close();
+			con.close();
+			pstmt.close();
+			return member;
+			
+		}
+
+		public void toggleLogined(String flag, int memberNo) throws Exception {
+			
+			String sql = "update tb_member				"
+						+"set member_is_logined = ?		"
+						+"where member_no = ?";
+
+			Connection con = ConnectionUtil.getConnection();
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, flag);
+			pstmt.setInt(2, memberNo);
+			pstmt.executeUpdate();
+			
+			con.close();
+			pstmt.close();
+		}
+}

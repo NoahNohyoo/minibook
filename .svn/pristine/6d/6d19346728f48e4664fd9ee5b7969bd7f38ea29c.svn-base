@@ -1,0 +1,183 @@
+package com.mini.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+
+import com.mini.util.ConnectionUtil;
+import com.mini.vo.MemberVO;
+import com.mini.vo.BoardVO;
+
+public class BoardDAO {
+	public void updateNewBoard(BoardVO board) throws Exception {
+		String sql = " INSERT INTO TB_BOARD "
+				+ " (BOARD_NO, BOARD_FILE, BOARD_TAG, BOARD_CONTENT, "
+				+ " MEMBER_NO) "
+				+ " VALUES(SEQ_BOARD_NO.NEXTVAL, ?, ?, ?, ?) ";
+		Connection con = ConnectionUtil.getConnection();
+		PreparedStatement pstmt = con.prepareStatement(sql);
+		pstmt.setString(1, board.getBoard_file());
+		pstmt.setString(2, board.getBoard_tag());
+		pstmt.setString(3, board.getBoard_content());
+		pstmt.setInt(4, board.getMember_no());	
+		pstmt.executeUpdate();		
+		
+		pstmt.close();
+		con.close();
+	}
+	
+	public ArrayList<BoardVO> findBoardsOnMe(MemberVO member) throws Exception {
+		ArrayList<BoardVO> boards = new ArrayList<>();
+		String sql = " SELECT BOARD_NO, BOARD_FILE, "
+				+ " BOARD_TAG, BOARD_CONTENT, "
+				+ " BOARD_LIKE_CNT, BOARD_LEVEL, "
+				+ " BOARD_REGDATE, MEMBER_NO "
+				+ " FROM TB_BOARD "
+				+ " WHERE MEMBER_NO = ? "
+				+ " AND BOARD_LEVEL = 0 ";
+		Connection con = ConnectionUtil.getConnection();
+		PreparedStatement pstmt = con.prepareStatement(sql);
+		pstmt.setInt(1, member.getMemberNo());
+		ResultSet rs = pstmt.executeQuery();
+		while(rs.next()) {
+			BoardVO board = new BoardVO();
+			board.setBoard_no(rs.getInt("BOARD_NO"));
+			board.setBoard_file(rs.getString("BOARD_FILE"));
+			board.setBoard_tag(rs.getString("BOARD_TAG"));
+			board.setBoard_content(rs.getString("BOARD_CONTENT"));
+			board.setBoard_like_cnt(rs.getInt("BOARD_LIKE_CNT"));
+			board.setBoard_level(rs.getInt("BOARD_LEVEL"));
+			board.setBoard_regdate(rs.getDate("BOARD_REGDATE"));
+			board.setMember_no(rs.getInt("MEMBER_NO"));
+			boards.add(board);
+		}
+		rs.close();
+		pstmt.close();
+		con.close();
+		return boards;
+	}
+	
+	public ArrayList<BoardVO> findMySubscribedBoards(MemberVO member) throws Exception {
+		ArrayList<BoardVO> boards = new ArrayList<>();
+		
+		return boards;
+	}
+	
+	public ArrayList<BoardVO> findAllBoards(MemberVO member) throws Exception {
+		ArrayList<BoardVO> boards = new ArrayList<>();
+		String sql = " SELECT A.BOARD_NO BOARD_NO, A.BOARD_FILE BOARD_FILE, A.BOARD_TAG BOARD_TAG, A.BOARD_CONTENT BOARD_CONTENT, A.BOARD_LIKE_CNT BOARD_LIKE_CNT, A.BOARD_LEVEL BOARD_LEVEL, A.BOARD_REGDATE BOARD_REGDATE, A.MEMBER_NO MEMBER_NO, B.MEMBER_NAME MEMBER_NAME "
+				+ "FROM TB_BOARD A, TB_MEMBER B "
+				+ " WHERE A.MEMBER_NO = B.MEMBER_NO "
+				+ " AND A.BOARD_LEVEL = 0 "
+				+ " AND (A.MEMBER_NO IN ((SELECT FRIEND_NO FROM TB_FRIEND WHERE MEMBER_NO= ? AND FRIEND_AGREE = 'Y')) "
+				+ " OR A.MEMBER_NO = ?) "
+				+ " ORDER BY A.BOARD_NO DESC ";
+		Connection con = ConnectionUtil.getConnection();
+		PreparedStatement pstmt = con.prepareStatement(sql);
+		pstmt.setInt(1, member.getMemberNo());
+		pstmt.setInt(2, member.getMemberNo());
+		ResultSet rs = pstmt.executeQuery();
+		while(rs.next()) {
+			BoardVO board = new BoardVO();
+			board.setBoard_no(rs.getInt("BOARD_NO"));
+			board.setBoard_file(rs.getString("BOARD_FILE"));
+			board.setBoard_tag(rs.getString("BOARD_TAG"));
+			board.setBoard_content(rs.getString("BOARD_CONTENT"));
+			board.setBoard_like_cnt(rs.getInt("BOARD_LIKE_CNT"));
+			board.setBoard_level(rs.getInt("BOARD_LEVEL"));
+			board.setBoard_regdate(rs.getDate("BOARD_REGDATE"));
+			board.setMember_no(rs.getInt("MEMBER_NO"));
+			board.setMember_name(rs.getString("MEMBER_NAME"));
+			boards.add(board);
+		}
+		rs.close();
+		pstmt.close();
+		con.close();
+		return boards;
+	}
+	
+	public void deleteBoardByNo(BoardVO board) {
+		
+	}
+	
+	public void callBoardforEdit(BoardVO board) {
+		
+	}
+	
+	public void updateEditedBoard(BoardVO board) {
+		
+	}
+	
+	public void likeBoard(BoardVO board, MemberVO member) {
+		
+	}
+	
+	public void addBoardToSubscribe(BoardVO board, MemberVO member) {
+		
+	}	
+	
+	public void removeBoardFromSubscribe(BoardVO board, MemberVO member) {
+		
+	}
+	
+	public void addNewComments(BoardVO board) throws Exception {
+		String sql = " INSERT INTO TB_BOARD "
+				+ " (BOARD_NO, BOARD_TAG, BOARD_CONTENT, "
+				+ " MEMBER_NO, BOARD_LEVEL) "
+				+ " VALUES(SEQ_BOARD_NO.NEXTVAL,  ?, ?, ?, ?) ";
+		Connection con = ConnectionUtil.getConnection();
+		PreparedStatement pstmt = con.prepareStatement(sql);
+		pstmt.setString(1, board.getBoard_tag());
+		pstmt.setString(2, board.getBoard_content());
+		pstmt.setInt(3, board.getMember_no());	
+		pstmt.setInt(4, board.getBoard_level());
+		pstmt.executeUpdate();		
+		
+		pstmt.close();
+		con.close();
+	}
+	
+	public ArrayList<BoardVO> findCommentsByBoardNo(int no) throws Exception {
+		ArrayList<BoardVO> boards = new ArrayList<>();
+		String sql = " SELECT A.BOARD_NO BOARD_NO, A.BOARD_FILE BOARD_FILE, A.BOARD_TAG BOARD_TAG, "
+				+ " A.BOARD_CONTENT BOARD_CONTENT, A.BOARD_LIKE_CNT BOARD_LIKE_CNT, A.BOARD_LEVEL BOARD_LEVEL, "
+				+ " A.BOARD_REGDATE BOARD_REGDATE, A.MEMBER_NO MEMBER_NO, B.MEMBER_NAME MEMBER_NAME "
+				+ " FROM TB_BOARD A, TB_MEMBER B "
+				+ " WHERE A.BOARD_LEVEL = ? "
+				+ " AND A.MEMBER_NO = B.MEMBER_NO "
+				+ " ORDER BY BOARD_NO ASC ";
+		Connection con = ConnectionUtil.getConnection();
+		PreparedStatement pstmt = con.prepareStatement(sql);
+		pstmt.setInt(1, no);
+		ResultSet rs = pstmt.executeQuery();
+		while(rs.next()) {
+			BoardVO board = new BoardVO();
+			board.setBoard_no(rs.getInt("BOARD_NO"));
+			board.setBoard_content(rs.getString("BOARD_CONTENT"));
+			board.setBoard_like_cnt(rs.getInt("BOARD_LIKE_CNT"));
+			board.setBoard_level(rs.getInt("BOARD_LEVEL"));
+			board.setBoard_regdate(rs.getDate("BOARD_REGDATE"));
+			board.setMember_no(rs.getInt("MEMBER_NO"));
+			board.setMember_name(rs.getString("MEMBER_NAME"));
+			boards.add(board);
+		}
+		rs.close();
+		pstmt.close();
+		con.close();
+		return boards;
+	}
+	
+	public boolean checkLikeYesNo(BoardVO board, MemberVO member) {
+		boolean checking = false;
+		return checking;
+		
+	}
+	
+	public boolean checkSubsYesNo(BoardVO board, MemberVO member) {
+		boolean checking = false;
+		return checking;
+		
+	}
+
+}

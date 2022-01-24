@@ -1,0 +1,76 @@
+package com.mini.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.mini.util.ConnectionUtil;
+import com.mini.vo.MemberVO;
+
+
+
+public class MemberDAO {
+
+	public void addMember(MemberVO member) throws Exception {
+		String sql = "insert into tb_member 															"											
+					+" (member_no, member_contact, member_lng, member_lat, member_id,					"
+					+"member_pwd, member_email, member_gender, member_name, member_addr, member_birth) 	"
+					+"values (seq_member_no.nextval, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+
+		Connection con = ConnectionUtil.getConnection();
+		PreparedStatement pstmt = con.prepareStatement(sql);
+		pstmt.setString(1, member.getMemberContact());
+		pstmt.setDouble(2, member.getMemberLng());
+		pstmt.setDouble(3, member.getMemberLat());
+		pstmt.setString(4, member.getMemberId());
+		pstmt.setString(5, member.getMemberPwd());
+		pstmt.setString(6, member.getMemberEmail());
+		pstmt.setString(7, member.getMemberGender());
+		pstmt.setString(8, member.getMemberName());
+		pstmt.setString(9, member.getMemberAddr());
+		pstmt.setString(10, member.getMemberBirth());
+		
+		pstmt.executeUpdate();
+		
+		con.close();
+		pstmt.close();
+	}
+	
+		public MemberVO getMemberById(String id) throws Exception {
+		
+			String sql = "select member_no, member_contact, member_lng, member_lat, member_id,"
+					+ " member_pwd, member_email, member_gender, member_name, member_addr, member_birth "
+					+ " from tb_member "
+					+ " where member_id = ?";
+			
+			MemberVO member = null;
+			
+			Connection con = ConnectionUtil.getConnection();
+			PreparedStatement pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, id);
+			ResultSet rs = pstmt.executeQuery();
+			
+			if (rs.next()) {
+				member = new MemberVO();
+				member.setMemberNo(rs.getInt("member_no"));
+				member.setMemberContact(rs.getString("member_Contact"));
+				member.setMemberLng(rs.getDouble("member_lng"));
+				member.setMemberLat(rs.getDouble("member_lat"));
+				member.setMemberId(rs.getString("member_id"));
+				member.setMemberPwd(rs.getString("member_pwd"));
+				member.setMemberEmail(rs.getString("member_email"));
+				member.setMemberGender(rs.getString("member_gender"));
+				member.setMemberName(rs.getString("member_name"));
+				member.setMemberAddr(rs.getString("member_addr"));
+				member.setMemberBirth(rs.getString("member_birth"));
+				
+			}
+			
+			rs.close();
+			con.close();
+			pstmt.close();
+			return member;
+		
+		}
+}

@@ -1,0 +1,83 @@
+package com.mini.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.util.ArrayList;
+
+import com.mini.util.ConnectionUtil;
+import com.mini.vo.MemberVO;
+import com.mini.vo.BoardVO;
+
+public class BoardDAO {
+	public void updateNewBoard(BoardVO board) throws Exception {
+		String sql = " INSERT INTO TB_BOARD "
+				+ " (BOARD_NO, BOARD_FILE, BOARD_TAG, BOARD_CONTENT, "
+				+ " MEMBER_NO) "
+				+ " VALUES(SEQ_BOARD_NO.NEXTVAL, ?, ?, ?, ?) ";
+		Connection con = ConnectionUtil.getConnection();
+		PreparedStatement pstmt = con.prepareStatement(sql);
+		pstmt.setString(1, board.getBoard_file());
+		pstmt.setString(2, board.getBoard_tag());
+		pstmt.setString(3, board.getBoard_content());
+		pstmt.setInt(4, board.getMember_no());	
+		pstmt.executeUpdate();		
+		
+		pstmt.close();
+		con.close();
+	}
+	
+	public ArrayList<BoardVO> findBoardsOnMe(MemberVO member) throws Exception {
+		ArrayList<BoardVO> boards = new ArrayList<>();
+		
+		return boards;
+	}
+	
+	public ArrayList<BoardVO> findMySubscribedBoards(MemberVO member) throws Exception {
+		ArrayList<BoardVO> boards = new ArrayList<>();
+		
+		return boards;
+	}
+	
+	public ArrayList<BoardVO> findAllBoards(MemberVO member) throws Exception {
+		ArrayList<BoardVO> boards = new ArrayList<>();
+		
+		return boards;
+	}
+	
+	public void deleteBoardByNo(BoardVO board) {
+		
+	}
+	
+	public void callBoardforEdit(BoardVO board) {
+		
+	}
+	
+	public void updateEditedBoard(BoardVO board) {
+		
+	}
+	
+	public void likeBoard(BoardVO board, MemberVO member) {
+		
+	}
+	
+	public void addBoardToSubscribe(BoardVO board, MemberVO member) {
+		
+	}	
+	
+	public void removeBoardFromSubscribe(BoardVO board, MemberVO member) {
+		
+	}
+	
+	public boolean checkLikeYesNo(BoardVO board, MemberVO member) {
+		boolean checking = false;
+		return checking;
+		
+	}
+	
+	public boolean checkSubsYesNo(BoardVO board, MemberVO member) {
+		boolean checking = false;
+		return checking;
+		
+	}
+
+}
